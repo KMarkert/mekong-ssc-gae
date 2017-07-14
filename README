@@ -1,8 +1,5 @@
-LANDCOVER PORTAL
+# Mekong Water Quality
 
-The Portal for the LandCover tool.
+An application to map water quality in the Mekong Basin
 
-INSTALLATION
-1. Clone the repository from gitub.
-2. Create app: gcloud app create 
-3. Deplay app: gcloud app deploy 
+
