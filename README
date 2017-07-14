@@ -1,0 +1,8 @@
+LANDCOVER PORTAL
+
+The Portal for the LandCover tool.
+
+INSTALLATION
+1. Clone the repository from gitub.
+2. Create app: gcloud app create 
+3. Deplay app: gcloud app deploy 
