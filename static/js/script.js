@@ -113,6 +113,7 @@ function setupListeners() {
   document.getElementById('files').addEventListener('change', fileOpenDialog, false);
 
   document.getElementById('polygon-selection-method').addEventListener("click",  polygonSelectionMethod);
+	document.getElementById('polygon-clear-method').addEventListener("click",  polygonClearMethod);
 
   document.getElementById('link').addEventListener("click",  hideLink);
 
@@ -122,15 +123,26 @@ function setupListeners() {
 /**
 * Display the polygons when the radio button changes
 **/
-function polygonSelectionMethod(){
+function polygonSelectionMethod(data){
 
 	// clear existing overlays
 	clearMap();
 
 	// setup drawing
 	createDrawingManager();
+
+	showChart(data['timeSeries']);
+
 }
 
+function polygonClearMethod(){
+	// clear existing overlays
+	clearMap();
+
+	drawingManager.setDrawingMode(null);
+
+	hideLink()
+}
 
 /**
 * hide the download URL when clicked
@@ -157,6 +169,8 @@ var clearMap = function(){
 	}
 
 	all_overlays = [];
+
+	map.setOptions({draggableCursor:''});
 
 }
 
@@ -252,13 +266,16 @@ var getStarted = function() {
 function collapseMenu() {
 
    var menu = document.getElementById('ui');
+	 var mapView = document.getElementById('map')
    var settings_button = document.getElementById('settings-button');
 
 	if  (menu.style.display == 'none') {
 		 menu.style.display = 'block';
+		 mapView.style.width = '70%';
 		 settings_button.style.display="none";
 	} else {
 		menu.style.display = 'none';
+		mapView.style.width = '100%';
 		settings_button.style.display = 'block';
     }
 }
@@ -485,6 +502,31 @@ var getCoordinates = function (shape) {
             return [point.lng(), point.lat()];
         });
     }
+};
+
+/**
+ * Shows a chart with the given timeseries.
+ * @param {Array<Array<number>>} timeseries The timeseries data
+ *     to plot in the chart.
+ */
+ var showChart = function(timeseries) {
+  timeseries.forEach(function(point) {
+    point[0] = new Date(parseInt(point[0], 10));
+  }.bind(this));
+  var data = new google.visualization.DataTable();
+  data.addColumn('date');
+  data.addColumn('number');
+  data.addRows(timeseries);
+  var wrapper = new google.visualization.ChartWrapper({
+    chartType: 'LineChart',
+    dataTable: data,
+    options: {
+      title: 'Total Suspended Solids over time',
+      curveType: 'function',
+      legend: {position: 'none'},
+      titleTextStyle: {fontName: 'Roboto'}
+    }
+  });
 };
 
 

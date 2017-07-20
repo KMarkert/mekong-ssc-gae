@@ -39,6 +39,9 @@ WIKI_URL = ""
 
 base_path = os.path.dirname(__file__)
 
+# The scale at which to reduce the polygons for the WQ time series.
+REDUCTION_SCALE_METERS = 30
+
 # Create the Jinja templating system we use to dynamically generate HTML. See:
 # http://jinja.pocoo.org/docs/dev/
 JINJA2_ENVIRONMENT = jinja2.Environment(
@@ -231,7 +234,6 @@ app = webapp2.WSGIApplication([
 
 def updateMap(startDate,endDate):
 
-
   myProcessor = myProcess(startDate,endDate,lmbRegion)
   mkTSS = myProcessor.getTSS()
 
@@ -256,3 +258,60 @@ def downloadMap(polygon,coords,startDate,endDate):
 		'crs': 'EPSG:4326',
 		'region': coords
   })
+
+def GetPolygonTimeSeries(polygon_id):
+  """Returns details about the polygon with the passed-in ID."""
+  details = memcache.get(polygon_id)
+
+  # If we've cached details for this polygon, return them.
+  if details is not None:
+    return details
+
+  details = {'wikiUrl': WIKI_URL + polygon_id.replace('-', '%20')}
+
+  try:
+    details['timeSeries'] = ComputePolygonTimeSeries(polygon_id)
+    # Store the results in memcache.
+    memcache.add(polygon_id, json.dumps(details), MEMCACHE_EXPIRATION)
+  except ee.EEException as e:
+    # Handle exceptions from the EE client library.
+    details['error'] = str(e)
+
+  # Send the results to the browser.
+  return json.dumps(details)
+
+
+def ComputePolygonTimeSeries(polygon_id):
+  """Returns a series of brightness over time for the polygon."""
+  myProcessor = myProcess(startDate,endDate,lmbRegion)
+  mkTSS = myProcessor.getTSS()
+  collection = collection.select('tss').sort('system:time_start')
+  feature = GetFeature(polygon_id)
+
+  # Compute the mean brightness in the region in each image.
+  def ComputeMean(img):
+    reduction = img.reduceRegion(
+        ee.Reducer.mean(), feature.geometry(), REDUCTION_SCALE_METERS)
+    return ee.Feature(None, {
+        'tss': reduction.get('tss'),
+        'system:time_start': img.get('system:time_start')
+    })
+  chart_data = collection.map(ComputeMean).getInfo()
+
+  # Extract the results as a list of lists.
+  def ExtractMean(feature):
+    return [
+        feature['properties']['system:time_start'],
+        feature['properties']['tss']
+    ]
+  return map(ExtractMean, chart_data['features'])
+
+
+def GetFeature(polygon_id):
+  """Returns an ee.Feature for the polygon with the given ID."""
+  # Note: The polygon IDs are read from the filesystem in the initialization
+  # section below. "sample-id" corresponds to "static/polygons/sample-id.json".
+  path = POLYGON_PATH + polygon_id + '.json'
+  path = os.path.join(os.path.split(__file__)[0], path)
+  with open(path) as f:
+    return ee.Feature(json.load(f))

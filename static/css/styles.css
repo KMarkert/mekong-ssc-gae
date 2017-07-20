@@ -167,6 +167,13 @@ footer {
     width:100px;
 }
 
+.logos img#gee {
+    position:absolute;
+    top:12px;
+    right:30px;
+    width:200px;
+}
+
 /**************/
 /* About Page */
 /**************/
@@ -230,7 +237,15 @@ footer {
     top:0px;
     left:0px;
     height:100%;
-    width:100%;
+    width:70%;
+}
+
+#ecodash #mapfull {
+    position:absolute;
+    top:0px;
+    left:0px;
+    height:100%;
+    width:70%;
 }
 
 #ecodash #ui {
@@ -238,7 +253,7 @@ footer {
     top:0px;
     right:0px;
     height:100%;
-    width:20rem;
+    width:29%;
     background-color:white;
     padding:0.5%;
     overflow:hidden;
