@@ -1,22 +1,63 @@
 #!/usr/bin/env python
-"""A simple example of connecting to Earth Engine using App Engine."""
+"""Google Earth Engine python code for the SERVIR-Mekong Surface ecodash Tool"""
 
+# This script handles the loading of the web application and its timeout settings,
+# as well as the complete Earth Engine code for all the calculations.
 
-
-# Works in the local development environment and when deployed.
-# If successful, shows a single web page with the SRTM DEM
-# displayed in a Google Map.  See accompanying README file for
-# instructions on how to set up authentication.
-
+import json
 import os
 
 import config
+import numpy as np
 import ee
 import jinja2
 import webapp2
+import oauth2client.appengine
 
-jinja_environment = jinja2.Environment(
-    loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))
+import socket
+
+from google.appengine.api import urlfetch
+from google.appengine.api import memcache
+from google.appengine.api import users
+from google.appengine.api import channel
+from google.appengine.api import taskqueue
+
+# ------------------------------------------------------------------------------------ #
+# Initialization
+# ------------------------------------------------------------------------------------ #
+
+# Memcache is used to avoid exceeding our EE quota. Entries in the cache expire
+# 24 hours after they are added. See:
+# https://cloud.google.com/appengine/docs/python/memcache/
+MEMCACHE_EXPIRATION = 60 * 60 * 24
+
+
+# The URL fetch timeout time (seconds).
+URL_FETCH_TIMEOUT = 120
+
+WIKI_URL = ""
+
+base_path = os.path.dirname(__file__)
+
+# Create the Jinja templating system we use to dynamically generate HTML. See:
+# http://jinja.pocoo.org/docs/dev/
+JINJA2_ENVIRONMENT = jinja2.Environment(
+    loader=jinja2.FileSystemLoader(base_path),
+    autoescape=True,
+    extensions=['jinja2.ext.autoescape'])
+
+ee.Initialize(config.EE_CREDENTIALS)
+
+ee.data.setDeadline(URL_FETCH_TIMEOUT)
+socket.setdefaulttimeout(URL_FETCH_TIMEOUT)
+urlfetch.set_default_fetch_deadline(URL_FETCH_TIMEOUT)
+
+# set initial dates
+start = '2000-01-01'
+end = '2002-12-31'
+
+# set LMB region
+lmbRegion = ee.FeatureCollection('ft:1FOW0_lYQNG3ku2ffNyoORbzDXglPvfMyXmZRb8dj')
 
 
 class myProcess(object):
@@ -69,7 +110,7 @@ class myProcess(object):
         return tss
 
     def qualityMask(self,image):
-        qualityTss = image.updateMask(image.lt(500)).set("system:time_start",image.get("system:time_start"))
+        qualityTss = image.updateMask(image.lt(250)).set("system:time_start",image.get("system:time_start"))
         return qualityTss
 
     def makeLandsatSeries(self):
@@ -102,30 +143,116 @@ class myProcess(object):
 
         return qualityTss
 
-class MainPage(webapp2.RequestHandler):
+# ------------------------------------------------------------------------------------ #
+# Web request handlers
+# ------------------------------------------------------------------------------------ #
 
-  def get(self):                             # pylint: disable=g-bad-name
-    """Request an image from Earth Engine and render it to a web page."""
-    ee.Initialize(config.EE_CREDENTIALS)
+class MainHandler(webapp2.RequestHandler):
+    """A servlet to handle requests to load the main web page."""
 
-    lmbRegion = ee.FeatureCollection('ft:1FOW0_lYQNG3ku2ffNyoORbzDXglPvfMyXmZRb8dj')
+    def get(self):
+        mapid = updateMap(start,end)
+        template_values = {
+            'eeMapId': mapid['mapid'],
+            'eeToken': mapid['token']
+        }
 
-    myProcessor = myProcess('2000-01-01','2000-12-31',lmbRegion)
-    mkTSS = myProcessor.getTSS()
+        template = JINJA2_ENVIRONMENT.get_template('index.html')
+        self.response.out.write(template.render(template_values))
 
-    myImg = ee.Image(mkTSS.select('tss').mean().clip(lmbRegion))
 
-    mapid = myImg.getMapId({'min': 0, 'max': 200,
-    'palette' : '000000,0000ff,ff0000,ffffff'})
+class DetailsHandler(webapp2.RequestHandler):
+  """A servlet to handle requests for details about a Polygon."""
 
-    # These could be put directly into template.render, but it
-    # helps make the script more readable to pull them out here, especially
-    # if this is expanded to include more variables.
+  def get(self):
+    """Returns details about a polygon."""
+
+    start = self.request.get('refLow') + '-01-01'
+    end = self.request.get('refHigh') + '-12-31'
+
+    mapid = updateMap(start,end)
+
     template_values = {
-        'mapid': mapid['mapid'],
-        'token': mapid['token']
-    }
-    template = jinja_environment.get_template('index.html')
-    self.response.out.write(template.render(template_values))
+		'eeMapId': mapid['mapid'],
+		'eeToken': mapid['token']
+        }
 
-app = webapp2.WSGIApplication([('/', MainPage)], debug=True)
+    template = JINJA2_ENVIRONMENT.get_template('index.html')
+    self.response.headers['Content-Type'] = 'application/json'
+    self.response.out.write(json.dumps(template_values))
+
+# Download handler to download the map
+# returns a url to download
+class DownloadHandler(webapp2.RequestHandler):
+    """A servlet to handle requests to load the main web page."""
+
+    def get(self):
+
+		poly = json.loads(unicode(self.request.get('polygon')))
+
+		coords = []
+
+		for items in poly:
+			coords.append([items[0],items[1]])
+
+
+		start = self.request.get('refLow') + '-01-01'
+		end = self.request.get('refHigh') + '-12-31'
+
+
+		print "========================================="
+		print coords
+
+
+		polygon = ee.FeatureCollection(ee.Geometry.Polygon(coords))
+
+		downloadURL = downloadMap(polygon,coords,start,end)
+
+		print downloadURL
+		content = json.dumps(downloadURL)
+
+		self.response.headers['Content-Type'] = 'application/json'
+		self.response.out.write(content)
+
+
+# Define webapp2 routing from URL paths to web request handlers. See:
+# http://webapp-improved.appspot.com/tutorials/quickstart.html
+app = webapp2.WSGIApplication([
+    ('/details', DetailsHandler),
+    ('/downloadHandler', DownloadHandler),
+    ('/', MainHandler),
+
+])
+
+
+# ------------------------------------------------------------------------------------ #
+# Helper functions
+# ------------------------------------------------------------------------------------ #
+
+def updateMap(startDate,endDate):
+
+
+  myProcessor = myProcess(startDate,endDate,lmbRegion)
+  mkTSS = myProcessor.getTSS()
+
+  myImg = ee.Image(mkTSS.select('tss').mean().clip(lmbRegion))
+
+  return myImg.getMapId({'min': 0, 'max': 200,
+  'palette' : '000000,0000ff,c729d6,ffa857,ffffff'})
+
+
+
+# function to download the map
+# returns a download url
+def downloadMap(polygon,coords,startDate,endDate):
+
+  myProcessor = myProcess('2010-01-01','2010-07-31',lmbRegion)
+  mkTSS = myProcessor.getTSS()
+
+  myImg = ee.Image(mkTSS.select('tss').mean().clip(lmbRegion))
+
+  return myImg.getDownloadURL({
+		'scale': 30,
+		'crs': 'EPSG:4326',
+		'region': coords
+  })
