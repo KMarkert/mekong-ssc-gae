@@ -48,6 +48,20 @@ var App = function(eeMapId, eeToken) {
   // create listeners for buttons and sliders
   setupListeners();
 
+	$(function () {
+	  $("#datepicker").datepicker({
+	        autoclose: true,
+	        todayHighlight: true
+	  }).datepicker('update', new Date('01-01-2000'));
+	});
+
+	$(function () {
+	  $("#datepicker2").datepicker({
+	        autoclose: true,
+	        todayHighlight: true
+	  }).datepicker('update', new Date('12-31-2000'));
+	});
+
   // run the slider function to initialize the dates
   slider();
 
@@ -96,27 +110,21 @@ var createMap = function() {
 **/
 function setupListeners() {
 
-  document.getElementById('homebutton').addEventListener("click", homePage);
-  document.getElementById('aboutbutton').addEventListener("click", aboutPage);
-  document.getElementById('info-button').addEventListener("click", showInfo);
-  //document.getElementById('start-button').addEventListener("click", getStarted);
-  document.getElementById('collapse-button').addEventListener("click", collapseMenu);
-  document.getElementById('settings-button').addEventListener("click", collapseMenu);
-
   document.getElementById('updateMap').addEventListener("click", updateButton);
 
-  document.getElementById('slider1').addEventListener("change", slider);
-  document.getElementById('slider2').addEventListener("change", slider);
-  document.getElementById('opacitySlider').addEventListener("change", opacitySliders);
+  document.getElementById('datepicker').addEventListener("change", slider);
+  document.getElementById('datepicker2').addEventListener("change", slider);
+  // document.getElementById('opacitySlider').addEventListener("change", opacitySliders);
+	$('#opacitySlider').slider().on('slideStop',opacitySliders)
 
    // kml upload function
-  document.getElementById('files').addEventListener('change', fileOpenDialog, false);
+  // document.getElementById('files').addEventListener('change', fileOpenDialog, false);
 
   document.getElementById('polygon-selection-method').addEventListener("click",  polygonSelectionMethod);
 	document.getElementById('polygon-clear-method').addEventListener("click",  polygonClearMethod);
 
   document.getElementById('link').addEventListener("click",  hideLink);
-
+	document.getElementById('chartButton').addEventListener("click",plot);
 
 }
 
@@ -131,8 +139,10 @@ function polygonSelectionMethod(data){
 	// setup drawing
 	createDrawingManager();
 
-	showChart(data['timeSeries']);
+}
 
+function plot(){
+	showChart(data['timeSeries']);
 }
 
 function polygonClearMethod(){
@@ -149,8 +159,8 @@ function polygonClearMethod(){
 **/
 function hideLink(){
 
-	var hidelink = document.getElementById("link")
-	hidelink.style.display = 'none';
+	$('#link').addClass('disabled').prop('disabled', true);
+	$('#chartButton').addClass('disabled').prop('disabled', true);
 
 }
 
@@ -225,24 +235,6 @@ var showInfo = function() {
 	infoscreen.style.display = 'block';
 	} else {
       infoscreen.style.display = 'none';
-    }
-}
-
-
-/**
-* function to show info screen
-* using the info button
- */
-var showgraph = function() {
-
-   // get infoscreen by id
-   var graphscreen = document.getElementById('chart-info');
-
-   // open or close screen
-   if  (graphscreen.style.display === 'none') {
-	graphscreen.style.display = 'block';
-	} else {
-      graphscreen.style.display = 'none';
     }
 }
 
@@ -334,14 +326,17 @@ function updateButton() {
  */
 var slider = function() {
 
-	refStart = $("#slider1").val();
-	refStop = $("#slider2").val();
+	// Without JQuery
+	var slider = new Slider('#monthSlider', {});
 
-	var slider1 = document.getElementById("sliderval1");
-    slider1.innerHTML = refStart;
+	// Without JQuery
+	var opacSlider = new Slider('#opacitySlider', {});
 
-	var slider2 = document.getElementById("sliderval2");
-    slider2.innerHTML = refStop;
+	// var slider1 = document.getElementById("sliderval1");
+  //   slider1.innerHTML = refStart;
+	//
+	// var slider2 = document.getElementById("sliderval2");
+  //   slider2.innerHTML = refStop;
 
 }
 
@@ -351,11 +346,12 @@ var slider = function() {
  */
 var GetDates = function() {
 
-	refStart = $("#slider1").val();
-	refStop = $("#slider2").val();
+	refStart = $('#datepicker').data('datepicker').getFormattedDate('yyyy-mm-dd');
+	refStop = $("#datepicker2").data('datepicker').getFormattedDate('yyyy-mm-dd');
 
+	months = $('#monthSlider').val()
 
-	return [refStart, refStop]
+	return [refStart, refStop,months]
 }
 
 
@@ -370,11 +366,14 @@ var ShowMap = function() {
 
 	var Dates = GetDates();
 
+	console.log(Dates);
+
 	var params = {};
 
 	// set the parameters
 	params['refLow'] = Dates[0]
 	params['refHigh'] = Dates[1]
+	params['months'] = Dates[2]
 
 	$(".spinner").toggle();
 
@@ -410,9 +409,7 @@ var refreshImage = function(eeMapId, eeToken) {
 };
 
 var opacitySliders = function() {
-
-  setLayerOpacity($("#opacitySlider").val());
-
+  setLayerOpacity($("#opacitySlider").val())
 }
 
 var setLayerOpacity = function(value) {
@@ -456,8 +453,7 @@ var exportMap = function() {
 
 	var data = {refLow : Dates[0],
 			  refHigh : Dates[1],
-			  studyLow : Dates[2],
-			  studyHigh : Dates[3]
+			  months: Dates[2]
 			  }
 
 
@@ -467,9 +463,11 @@ var exportMap = function() {
     } else {
 
 		var showlink = document.getElementById("link")
-		showlink.style.display = 'block';
-		showlink.setAttribute("href",data);
+		$('#link').removeClass('disabled').prop('disabled', false);
+		showlink.setAttribute('href',data)
 
+
+		$('#chartButton').removeClass('disabled').prop('disabled', false);
     }
 	}).bind(this));
 
@@ -534,6 +532,18 @@ var getCoordinates = function (shape) {
 // Static helpers and constants
 // ---------------------------------------------------------------------------------- //
 
+function toggleOptions(x) {
+    x.classList.toggle("change");
+
+    var options = document.getElementById("ui");
+    if (options.style.display === "none") {
+        options.style.display = "block";
+    } else {
+        options.style.display = "none";
+    }
+		document.getElementById('map').setAttribute("class", "mapChange")
+}
+
 /**
  * Generates a Google Maps map type (or layer) for the passed-in EE map id. See:
  * https://developers.google.com/maps/documentation/javascript/maptypes#ImageMapTypes
@@ -551,7 +561,7 @@ var getEeMapType = function(eeMapId, eeToken) {
       return url;
     },
     tileSize: new google.maps.Size(256, 256),
-    name: 'FloodViewer',
+    name: 'MekongWQ',
 	opacity: 1.0,
 	mapTypeId: 'satellite'
   };
@@ -562,13 +572,13 @@ var getEeMapType = function(eeMapId, eeToken) {
 var EE_URL = 'https://earthengine.googleapis.com';
 
 /** @type {number} The default zoom level for the map. */
-var DEFAULT_ZOOM = 6;
+var DEFAULT_ZOOM = 7;
 
 /** @type {number} The max allowed zoom level for the map. */
 var MAX_ZOOM = 15;
 
 /** @type {Object} The default center of the map. */
-var DEFAULT_CENTER = {lng: 106.0, lat: 16.0};
+var DEFAULT_CENTER = {lng: 104.043, lat: 15.793};
 
 /** @type {string} The default date format. */
 var DATE_FORMAT = 'yyyy-mm-dd';

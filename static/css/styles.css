@@ -18,6 +18,62 @@ section, header, nav, footer {
 }
 
 /*****************/
+/* Custom Button Styles */
+/*****************/
+
+.btn-custom {
+  margin: 20px 20px 20px 20px;
+  width: 125px;
+  height: 40px;
+  color: #ffffff;
+  background-color: #2980B9;
+  border-color: #34495E;
+  -moz-box-shadow: 0 0 3px #232323;
+  -webkit-box-shadow: 0 0 3px #232323;
+  box-shadow: 3px 3px 6px #232323;
+}
+
+.btn-custom:hover,
+.btn-custom:focus,
+.btn-custom:active,
+.btn-custom.active,
+.open .dropdown-toggle.btn-custom {
+  color: #ffffff;
+  background-color: #7F8C8D;
+  border-color: #34495E;
+}
+
+.btn-custom:active,
+.btn-custom.active,
+.open .dropdown-toggle.btn-custom {
+  background-image: none;
+}
+
+.btn-custom.disabled,
+.btn-custom[disabled],
+fieldset[disabled] .btn-custom,
+.btn-custom.disabled:hover,
+.btn-custom[disabled]:hover,
+fieldset[disabled] .btn-custom:hover,
+.btn-custom.disabled:focus,
+.btn-custom[disabled]:focus,
+fieldset[disabled] .btn-custom:focus,
+.btn-custom.disabled:active,
+.btn-custom[disabled]:active,
+fieldset[disabled] .btn-custom:active,
+.btn-custom.disabled.active,
+.btn-custom[disabled].active,
+fieldset[disabled] .btn-custom.active {
+  background-color: #bdc3c7;
+  border-color: #000000;
+}
+
+.btn-custom .badge {
+  color: #34495e;
+  background-color: #ffffff;
+}
+
+/*****************/
 /* Header Styles */
 /*****************/
 
@@ -106,7 +162,7 @@ nav ul li aboutbutton {
 
 #pagecontent {
     position:fixed;
-    top:90px;
+    top:55px;
     left:0px;
     height:calc(100vh - 90px - 55px);
     width:100%;
@@ -114,7 +170,7 @@ nav ul li aboutbutton {
 }
 
 #pagecontent a {
-    color:#444;
+    color:#FFF;
     text-decoration:none;
 }
 
@@ -153,6 +209,13 @@ footer {
     width:200px;
 }
 
+.logos img#essc {
+    position:absolute;
+    top:2px;
+    left:270px;
+    width:70px;
+}
+
 .logos img#sei {
     position:absolute;
     top:5px;
@@ -174,52 +237,6 @@ footer {
     width:200px;
 }
 
-/**************/
-/* About Page */
-/**************/
-
-#about {
-	display:none;
-    position:absolute;
-    top:0%;
-    left:10%;
-    height:calc(100vh - 90px - 55px - 55px);
-    width:76%;
-    padding:2%;
-    overflow:scroll;
-    background:rgba(255, 255, 255, 0.8);
-    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#CCFFFFFF, endColorstr=#CCFFFFFF);
-    -ms-filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#CCFFFFFF, endColorstr=#CCFFFFFF);
-}
-
-#about h1 {
-    font-size:1.2rem;
-    font-weight:bold;
-    padding:0.5rem;
-    color:gray;
-}
-
-#about p {
-    padding:0.5rem;
-}
-
-#about #about-logos {
-    width:70%;
-    margin:auto;
-}
-
-#about #about-logos img {
-    display:inline;
-    height:35px;
-    padding:0.5rem;
-}
-
-#about p#copyright {
-    padding:0.5rem;
-    width:100%;
-    text-align:center;
-}
-
 /****************************************/
 /* Application Page Toplevel Components */
 /****************************************/
@@ -228,7 +245,7 @@ footer {
     position:absolute;
     top:0px;
     left:0px;
-    height:calc(100vh - 90px - 55px);
+    height:calc(100vh - 90px );
     width:100%;
 }
 
@@ -236,27 +253,29 @@ footer {
     position:absolute;
     top:0px;
     left:0px;
-    height:100%;
-    width:70%;
+    height:97%;
+    width:100%;
 }
 
-#ecodash #mapfull {
+#ecodash #mapChange {
     position:absolute;
     top:0px;
     left:0px;
     height:100%;
-    width:70%;
+    width:50%;
 }
 
 #ecodash #ui {
     position:absolute;
     top:0px;
     right:0px;
-    height:100%;
-    width:29%;
+    height:97%;
+    width:25%;
+    padding-bottom:50%;
     background-color:white;
     padding:0.5%;
     overflow:hidden;
+
 }
 
 #ecodash #settings-button {
@@ -379,10 +398,10 @@ footer {
 
 #ecodash #general-info h1 {
     text-align:center;
-    margin-bottom:0.5rem;
+    margin-bottom:1rem;
     font-size:2.4rem;
     font-weight:bold;
-    color:gray;
+    color:#2c3e50;
 }
 
 #ecodash #general-info p {
@@ -399,8 +418,8 @@ footer {
 #ecodash #legend {
     position:absolute;
     left:0px;
-    bottom:25px;
-    width:75px;
+    bottom:50px;
+    width:85px;
     height:200px;
     background-color:white;
     padding:10px;
@@ -410,27 +429,16 @@ footer {
 #ecodash #legend h2 {
     font-size:0.9rem;
     font-weight:bold;
-    color:gray;
+    color:#2c3e50;
     text-align:center;
     margin:4px;
 }
 
-#ecodash #legend table tr {
-    font-size:0.8rem;
-    font-weight: normal;
-    font-family:Arial, sans-serif;
-    font-size:12px;
-    padding:5px 5px;
-    overflow:hidden;
-    word-break:normal
-}
-
-#ecodash #legend table td:last-child {
-    padding-left:5px;
-}
-
 #ecodash #legend img {
-    height:90px;
+    width: 150%;
+    height:60%;
+    align-items: center;
+    left: 30%
 }
 
 
@@ -449,17 +457,17 @@ footer {
     width: 10rem;
 }
 
-#ecodash #opacitySlider {
+#ecodash #legend #opacitySlider {
     position:absolute;
-    left:0px;
+    left:5px;
     bottom:0px;
-    height:25px;
-    width:70px;
+    /*height:3%;*/
+    width:100%;
     background-color:white;
     padding:5px;
 }
 
-#ecodash #opacitySlider p {
+#ecodash #legend #opacitySlider p {
     font-size:0.8rem;
     color:#333;
     text-align:center;
@@ -467,10 +475,10 @@ footer {
 
 #ecodash #opacitySlider input {
     position:absolute;
-    left:5;
+    left:15%;
     top:25px;
-    width:80px;
-    height:22px;
+    /*width:100%;
+    height:22px;*/
 }
 
 #ecodash p#feedback {
@@ -493,43 +501,16 @@ footer {
 /***********************************/
 
 #ecodash #ui header {
-    height:1.5rem;
-    margin-bottom:0.5rem;
+    height:6rem;
+    margin-bottom:1rem;
     border-bottom:2px solid #666;
 }
 
 #ecodash #ui header h1 {
     display:inline;
-    font-size:1.2rem;
+    /*font-size:1.2rem;*/
     font-weight:bold;
-    color:gray;
-}
-
-#ecodash #ui header #collapse-button {
-    display:inline;
-    float:right;
-    margin-right:10px;
-    cursor:pointer;
-}
-
-#ecodash #ui header #info-button {
-    display:inline;
-    float:right;
-    margin:2px 10px 0px 0px;
-    padding:0px 3px;
-    background-image:linear-gradient(rgb(255,255,255) 0px, rgb(224,224,224) 100%);
-    background-position:0% 0%;
-    background-repeat:repeat-x;
-    border:1.25px solid rgb(204,204,204);
-    border-radius:3px;
-    box-shadow:rgba(255,255,255,0.15) 0px 1px 0px 0px inset,
-               rgba(0,0,0,0.075) 0px 1px 1px 0px;
-    font-size:12px;
-    color:rgb(51,51,51);
-    font-weight:400;
-    line-height:16px;
-    text-shadow:rgb(255,255,255) 0px 1px 0px;
-    cursor:pointer;
+    color:#2c3e50;
 }
 
 #ecodash #ui #step1 {
@@ -594,53 +575,9 @@ footer {
 }
 
 
-#ecodash #ui #sliderval1 {
+#ecodash #ui #polygon-clear-method {
     position:absolute;
-    left:60px;
-    top:85px;
-    width:10px;
-    height:22px;
-    display:inline;
-    font-size:0.8rem;
-    font-weight:bold;
-
-}
-
-#ecodash #ui #sliderval2 {
-    position:absolute;
-    left:210px;
-    top:85px;
-    width:10px;
-    height:22px;
-    display:inline;
-    font-size:0.8rem;
-    font-weight:bold;
-
-}
-
-
-#ecodash #ui #sliderval3{
-    position:absolute;
-    left:60px;
-    top:155px;
-    width:10px;
-    height:22px;
-    display:inline;
-    font-size:0.8rem;
-    font-weight:bold;
-
-}
-
-#ecodash #ui #sliderval4 {
-    position:absolute;
-    left:210px;
-    top:155px;
-    width:10px;
-    height:22px;
-    display:inline;
-    font-size:0.8rem;
-    font-weight:bold;
-
+    float:right;
 }
 
 /*********************************/
@@ -654,23 +591,30 @@ footer {
 }
 
 #ecodash #ui #controls h2 {
-    font-size:1rem;
-    font-weight:bold;
-    color:gray;
+    /*font-size:1rem;
+    font-weight:bold;*/
+    color:#2c3e50;
     margin-bottom:5px;
 }
 
 #ecodash #ui #controls h3 {
-    font-size:1.0rem;
-    font-weight:bold;
-    color:gray;
+    /*font-size:1.0rem;
+    font-weight:bold;*/
+    color:#2c3e50;
     margin:5px 0px;
 }
 
 #ecodash #ui #controls h4 {
+    /*font-size:0.9rem;*/
+    /*font-weight:bold;*/
+    color:#2c3e50;
+    margin:5px 0px;
+}
+
+#ecodash #ui #controls b {
     font-size:0.9rem;
     font-weight:bold;
-    color:gray;
+    color:#7f8c8d;
     margin:5px 0px;
 }
 
@@ -700,7 +644,7 @@ footer {
     vertical-align:middle;
     margin-left:5px;
     font-size:0.8rem;
-    color:#333;
+    color:#7f8c8d;
 }
 
 #ecodash #ui #controls p#polygon {
@@ -721,7 +665,7 @@ footer {
 
 
 #ecodash #ui #controls #downloadkml {
-	display: none;
+	/*display: none;*/
 }
 
 #ecodash #ui #controls #clearchart {
@@ -733,7 +677,7 @@ footer {
 }
 
 #ecodash #ui #controls #link {
-	display: none;
+	/*display: none;*/
 }
 
 /*****************************/
@@ -900,3 +844,47 @@ input[type=range]::-ms-fill-upper {
         -webkit-transform:rotate(360deg);
     }
 }
+
+.container {
+    display: inline-block;
+    cursor: pointer;
+    top: 50px;
+    right: -95%;
+    position: relative;
+    z-index: 10;
+    float: left;
+}
+
+.bar1, .bar2, .bar3 {
+    width: 35px;
+    height: 5px;
+    background-color: #ECF0F1;
+    margin: 6px 0;
+    transition: 0.5s;
+}
+
+/* Rotate first bar */
+.change .bar1 {
+    background-color: #C0392B;
+    -webkit-transform: rotate(-45deg) translate(-9px, 6px) ;
+    transform: rotate(-45deg) translate(-9px, 6px) ;
+}
+
+/* Fade out the second bar */
+.change .bar2 {
+    opacity: 0;
+}
+
+/* Rotate last bar */
+.change .bar3 {
+    background-color: #C0392B;
+    -webkit-transform: rotate(45deg) translate(-8px, -8px) ;
+    transform: rotate(45deg) translate(-8px, -8px) ;
+}
+
+label{margin-left: 20px;color:#7f8c8d;}
+#datepicker{width:180px; margin: 0 20px 20px 20px;}
+#datepicker > span:hover{cursor: pointer;}
+
+#datepicker2{width:180px; margin: 0px 20px 20px 20px;}
+#datepicker2 > span:hover{cursor: pointer;}
