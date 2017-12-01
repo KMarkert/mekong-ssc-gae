@@ -6,6 +6,7 @@
 
 import json
 import os
+import math
 
 import config
 import numpy as np
@@ -94,8 +95,8 @@ class myProcess(object):
         # blank = ee.Image(0);
         # scored = ee.Algorithms.Landsat.simpleCloudScore(image)
         # clouds = blank.where(scored.select(['cloud']).lte(5),1);
-        qa = image.select('cfmask')
-        clouds = qa.lt(2)
+        qa = self.getQABits(image.select('pixel_qa'),1,2,'qa')
+        clouds = qa.neq(0)
         noClouds = image.updateMask(clouds).set("system:time_start",image.get("system:time_start"))
         return noClouds
 
@@ -135,9 +136,9 @@ class myProcess(object):
         return tss.updateMask(tss.lt(250)) # mask bad quality TSS values
 
     def makeLandsatSeries(self):
-        lt4 = ee.ImageCollection('LANDSAT/LT4_SR')
-        lt5 = ee.ImageCollection('LANDSAT/LT5_SR')
-        le7 = ee.ImageCollection('LANDSAT/LE7_SR')
+        lt4 = ee.ImageCollection('LANDSAT/LT04/C01/T1_SR')
+        lt5 = ee.ImageCollection('LANDSAT/LT05/C01/T1_SR')
+        le7 = ee.ImageCollection('LANDSAT/LE07/C01/T1_SR')
         #lc8 = ee.ImageCollection('LANDSAT/LC08/C01/T1_RT_TOA').map(self.maskClouds)
 
         #lt4 = lt4.select(['B1,B2,B3,B4,B5,B7'],['blu','grn','red','nir','swir1','swir2'])
