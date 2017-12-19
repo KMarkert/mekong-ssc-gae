@@ -142,7 +142,21 @@ function polygonSelectionMethod(data){
 }
 
 function plot(){
-	showChart(data['timeSeries']);
+
+	var coords = getCoordinates(currentShape);
+	var Dates = GetDates();
+	var data = {refLow : Dates[0],
+			  refHigh : Dates[1],
+			  months: Dates[2]
+			  }
+
+	$.get('/timeHandler?polygon=' + JSON.stringify(coords),data).done((function(data) {
+    if (data['error']) {
+       alert("An error! This is embarrassing! Please report to the system admin. ");
+    } else {
+			showChart(data['timeSeries']);
+		}
+	})).bind(this)
 }
 
 function polygonClearMethod(){
