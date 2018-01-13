@@ -23,11 +23,19 @@
        inkscape:collect="always"
        id="linearGradient4180">
       <stop
-         style="stop-color:#f1f900;stop-opacity:1"
+         style="stop-color:#c729d6;stop-opacity:1"
          offset="0"
-         id="stop4161" />
+         id="stop4160" />
+     <stop
+        style="stop-color:#ff7e81;stop-opacity:1"
+        offset="0.33"
+        id="stop4161" />
+     <stop
+        style="stop-color:#ffd32c;stop-opacity:1"
+        offset="0.66"
+        id="stop4162" />
       <stop
-         style="stop-color:#770000;stop-opacity:1"
+         style="stop-color:#ffffff;stop-opacity:1"
          offset="1"
          id="stop4163" />
     </linearGradient>
@@ -35,11 +43,19 @@
        inkscape:collect="always"
        id="linearGradient4148">
       <stop
-         style="stop-color:#f1f900;stop-opacity:1"
+         style="stop-color:#c729d6;stop-opacity:1"
          offset="0"
+         id="stop4149" />
+      <stop
+         style="stop-color:#4200ff;stop-opacity:1"
+         offset="0.33"
          id="stop4150" />
       <stop
-         style="stop-color:#007010;stop-opacity:1"
+         style="stop-color:#0000aa;stop-opacity:1"
+         offset="0.66"
+         id="stop4151" />
+      <stop
+         style="stop-color:#000000;stop-opacity:1"
          offset="1"
          id="stop4152" />
     </linearGradient>
@@ -122,7 +138,7 @@
        inkscape:export-xdpi="255"
        inkscape:export-ydpi="255" />
     <rect
-       style="opacity:1;fill:#ffff00;fill-opacity:0;stroke:none;stroke-width:2.4000001;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="opacity:1;fill:#621ff2;fill-opacity:0;stroke:none;stroke-width:2.4000001;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect4186"
        width="40.911179"
        height="40.406101"
@@ -133,7 +149,7 @@
        inkscape:export-xdpi="255"
        inkscape:export-ydpi="255" />
     <rect
-       style="opacity:1;fill:#f1f900;fill-opacity:1;stroke:none;stroke-width:2.4000001;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="opacity:1;fill:#c729d6;fill-opacity:1;stroke:none;stroke-width:2.4000001;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect4190"
        width="40"
        height="36.365482"
@@ -144,7 +160,7 @@
        inkscape:export-xdpi="255"
        inkscape:export-ydpi="255" />
     <rect
-       style="opacity:1;fill:#ffff00;fill-opacity:0;stroke:none;stroke-width:2.4000001;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="opacity:1;fill:#621ff2;fill-opacity:0;stroke:none;stroke-width:2.4000001;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect4188"
        width="41.921329"
        height="37.880722"

@@ -419,26 +419,57 @@ footer {
     position:absolute;
     left:0px;
     bottom:50px;
-    width:85px;
-    height:200px;
+    width:100px;
+    height:210px;
     background-color:white;
     padding:10px;
     border-top-right-radius:3px;
 }
 
 #ecodash #legend h2 {
-    font-size:0.9rem;
+    font-size:0.95rem;
     font-weight:bold;
     color:#2c3e50;
     text-align:center;
-    margin:4px;
+    margin:3px;
 }
 
-#ecodash #legend img {
-    width: 150%;
-    height:60%;
+#ecodash #legend .img {
+    position: absolute;
+    /*width: 150%;*/
+    height:150%;
     align-items: center;
-    left: 30%
+    left: 10%;
+    top: -37.5px;
+    pad:1px
+}
+
+#ecodash #legend .top-right{
+    position: absolute;
+    font-size:10px;
+    top: 50px;
+    left: 45px;
+}
+
+#ecodash #legend .center-right{
+    position: absolute;
+    font-size:10px;
+    top: 101px;
+    left: 45px;
+}
+
+#ecodash #legend .bottom-right{
+    position: absolute;
+    font-size:10px;
+    top: 152px;
+    left: 45px;
+}
+
+#ecodash #legend p {
+    position: absolute;
+    font-size: 10px;
+    align-items: center;
+    right: 20%
 }
 
 
@@ -457,14 +488,13 @@ footer {
     width: 10rem;
 }
 
-#ecodash #legend #opacitySlider {
-    position:absolute;
-    left:5px;
-    bottom:0px;
-    /*height:3%;*/
+#ecodash #legend .opacSlider {
+    position:relative;
+    align-self: center;
+    bottom: -130px;
     width:100%;
     background-color:white;
-    padding:5px;
+    padding:-5px;
 }
 
 #ecodash #legend #opacitySlider p {
@@ -474,8 +504,8 @@ footer {
 }
 
 #ecodash #opacitySlider input {
-    position:absolute;
-    left:15%;
+    position:relative;
+    left:0%;
     top:25px;
     /*width:100%;
     height:22px;*/

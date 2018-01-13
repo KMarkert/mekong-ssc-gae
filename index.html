@@ -86,9 +86,16 @@
 			<!-- block with legend -->
 			<div id="legend">
 				<h2>Total Suspended Solids</h2>
-					<img id="img" src="static/img/legend.svg" alt="legend">
-					<h2>Opacity</h2>
-					<input id="opacitySlider" type="text" data-slider-min="0" data-slider-max="1" data-slider-step="0.1" data-slider-value="1"/>
+					<div>
+						<img class="img" src="static/img/legend.svg" alt="legend">
+						<div class="top-right">200 mg/L</div>
+						<div class="center-right">100 mg/L</div>
+						<div class="bottom-right">0 mg/L</div>
+					</div>
+					<h2 style="position:relative;bottom:-130px;zorder:10">Opacity</h2>
+					<div class="opacSlider">
+						<input id="opacitySlider" type="text" data-slider-min="0" data-slider-max="1" data-slider-step="0.1" data-slider-value="1"/>
+					</div>
 			</div>
 
 			<div class="container" onclick="toggleOptions(this)">
