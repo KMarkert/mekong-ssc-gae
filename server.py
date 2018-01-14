@@ -194,7 +194,8 @@ class myProcess(object):
 
         area = feature.geometry().area()
         collection = self.getTSS() #.getInfo()
-        values = collection.getRegion(feature,100).getInfo()
+        values = collection.getRegion(feature,5000).getInfo()
+        print(values)
         out = zip(*self.aggRegion(values))
 
         return out
@@ -285,16 +286,12 @@ class TimeHandler(webapp2.RequestHandler):
         start = self.request.get('refLow')
         end = self.request.get('refHigh')
         months = self.request.get('months').split(',')
-        if details is not None:
-          return details
-
-        details = {'wikiUrl': WIKI_URL + polygon_id.replace('-', '%20')}
-
 
         polygon = ee.FeatureCollection(ee.Geometry.Polygon(coords))
 
         try:
-          details['timeSeries'] = ComputePolygonTimeSeries(polygon,coords,start,end,int(months[0]),int(months[1]))
+          result = ComputePolygonTimeSeries(polygon,coords,start,end,int(months[0]),int(months[1]))
+          content = json.dumps(result)
         except ee.EEException as e:
           content = json.dumps({'error': 'Unrecognized polygon ID: ' + polygon_id})
 
@@ -323,7 +320,7 @@ def updateMap(startDate,endDate,startMonth,closeMonth):
 
   myImg = ee.Image(mkTSS.select('tss').mean().clip(lmbRegion))
 
-  return myImg.getMapId({'min': 0, 'max': 200,
+  return myImg.getMapId({'min': 0, 'max': 150,
   'palette' : '000000,0000ff,c729d6,ffa857,ffffff'})
 
 # function to download the map
