@@ -118,24 +118,19 @@ class myProcess(object):
         return proxy
 
     def calcTSS(self,image):
-        odr4 = ee.Image(4);
-        odr3 = ee.Image(3);
-        odr2 = ee.Image(2);
-        coef1 = ee.Image(1.0846909);
-        coef2 = ee.Image(6.60031595);
-        coef3 = ee.Image(8.71108893);
-        coef4 = ee.Image(3.55763532);
-        coef5 = ee.Image(1.30786962);
 
-        logTss = coef1.multiply(image.pow(odr4)).add(
-                coef2.multiply(image.pow(odr3))).add(
-                coef3.multiply(image.pow(odr2))).add(
-                coef4.multiply(image)).add(
-                coef5);
+        logTss = image.expression('a*X**4 + b*X**3 + c*X**2 + d*X + e',{
+                'X': image,
+                'a': 1.0846909,
+                'b': 6.60031595,
+                'c': 8.71108893,
+                'd': 3.55763532,
+                'e': 1.30786962
+              });
 
         tss = ee.Image(10).pow(logTss).set("system:time_start",image.get("system:time_start")).rename(['tss'])
 
-        return tss.updateMask(tss.lt(250)) # mask bad quality TSS values
+        return tss.updateMask(tss.lt(250)) # mask bad quality TSS values over 250
 
     def makeLandsatSeries(self):
         lt4 = ee.ImageCollection('LANDSAT/LT04/C01/T1_SR')
