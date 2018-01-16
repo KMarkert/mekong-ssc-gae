@@ -9,6 +9,9 @@ var DataArr = [];
 var all_overlays = [];
 var map;
 var currentShape;
+var chart;
+var chartOptions;
+var chartData
 
 
  /**
@@ -18,7 +21,7 @@ var currentShape;
  */
 var boot = function(eeMapId, eeToken) {
 
-	google.load('visualization', '1.0');
+	google.charts.load('current', {'packages':['corechart']});
 
 	var app = new App(eeMapId,
 					  eeToken
@@ -41,7 +44,6 @@ var App = function(eeMapId, eeToken) {
 
   // Load the default image.
   refreshImage(eeMapId, eeToken);
-
 
   channel = new goog.appengine.Channel(eeToken);
 
@@ -125,8 +127,15 @@ function setupListeners() {
 
   document.getElementById('link').addEventListener("click",  hideLink);
 	document.getElementById('chartButton').addEventListener("click",plot);
+	document.getElementById("chart-clear-method").addEventListener("click",clearChart)
 
 }
+
+function clearChart() {
+	document.getElementById('chart-window').style.display = "none";
+	document.getElementById('chart-info').style.display = "none";
+}
+
 
 /**
 * Display the polygons when the radio button changes
@@ -143,6 +152,8 @@ function polygonSelectionMethod(data){
 
 function plot(){
 
+	// document.getElementById("loader").style.display = "block"
+
 	var coords = getCoordinates(currentShape);
 	var Dates = GetDates();
 	var data = {refLow : Dates[0],
@@ -150,13 +161,15 @@ function plot(){
 			  months: Dates[2]
 			  }
 
+	$(".spinner").toggle();
+
 	$.get('/timeHandler?polygon=' + JSON.stringify(coords),data).done((function(data) {
     if (data['error']) {
-       alert("An error! This is embarrassing! Please report to the system admin. ");
+       alert("Uh-oh, an error occured! This is embarrassing! Here is the problem: "+data['error']);
     } else {
 			showChart(data['timeSeries']);
 		}
-	})).bind(this)
+	}))
 }
 
 function polygonClearMethod(){
@@ -207,8 +220,8 @@ var createDrawingManager = function(){
 		drawingMode: google.maps.drawing.OverlayType.POLYGON,
 		drawingControl: false,
 		polygonOptions: {
-			fillColor: "Black",
-			strokeColor: "Black"
+			fillColor: "#2c3e50",
+			strokeColor: "##7f8c8d"
 		  }
 		});
 
@@ -329,7 +342,11 @@ function updateButton() {
 
 	update_button = document.getElementById('updateMap')
 
+	// document.getElementById('loader').style.display = 'block';
+
 	ShowMap();
+
+	// document.getElementById('loader').style.display = 'none';
 }
 
 
@@ -522,24 +539,72 @@ var getCoordinates = function (shape) {
  *     to plot in the chart.
  */
  var showChart = function(timeseries) {
-  timeseries.forEach(function(point) {
-    point[0] = new Date(parseInt(point[0], 10));
-  }.bind(this));
-  var data = new google.visualization.DataTable();
-  data.addColumn('date');
-  data.addColumn('number');
-  data.addRows(timeseries);
-  var wrapper = new google.visualization.ChartWrapper({
-    chartType: 'LineChart',
-    dataTable: data,
-    options: {
-      title: 'Total Suspended Solids over time',
-      curveType: 'function',
-      legend: {position: 'none'},
-      titleTextStyle: {fontName: 'Roboto'}
-    }
+	document.getElementById('chart-window').style.display = "block";
+	document.getElementById('chart-info').style.display = "block";
+	var DataArr = []
+	timeseries.forEach(function(point) {
+		point[0] = new Date(parseInt(point[0], 10));
+		DataArr.push([point[0]]);
+	firstGraph = 1
   });
+
+
+  var count = 0;
+  timeseries.forEach(function(point) {
+	  DataArr[count].push(point[1]);
+	  count = count +1;
+  });
+
+  chartData = new google.visualization.DataTable();
+  chartData.addColumn('date','Date');
+	chartData.addColumn('number','TSS');
+
+  chartData.addRows(DataArr);
+
+	// var data = google.visualization.arrayToDataTable([
+	// 				timeseries
+  //         // ['Year', 'Sales', 'Expenses'],
+  //         // ['2004',  1000,      400],
+  //         // ['2005',  1170,      460],
+  //         // ['2006',  660,       1120],
+  //         // ['2007',  1030,      540]
+  //       ]);
+
+        chartOptions = {
+          title: 'TSS over time',
+          // curveType: 'function',
+          legend: { position: 'bottom' },
+					vAxis: {title: 'TSS [mg/L]',minValue: 0},
+					lineWidth: 1.5,
+					pointSize: 3,
+        };
+
+        chart = new google.visualization.ScatterChart(document.getElementById('chart-info'));
+
+        chart.draw(chartData,chartOptions);
+
+				$('#Export').click(function () {
+			        var csvFormattedDataTable = google.visualization.dataTableToCsv(data);
+			        var encodedUri = 'data:application/csv;charset=utf-8,' + encodeURIComponent(csvFormattedDataTable);
+			        this.href = encodedUri;
+			        this.download = 'table-data.csv';
+			        this.target = '_blank';
+			    });
+
+				$(".spinner").toggle();
+
 };
+
+function resize () {
+    // change dimensions if necessary
+    chart.draw(chartData, chartOptions);
+}
+if (window.addEventListener) {
+    window.addEventListener('resize', resize);
+}
+else {
+    window.attachEvent('onresize', resize);
+}
 
 
 // ---------------------------------------------------------------------------------- //

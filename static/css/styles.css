@@ -311,7 +311,17 @@ footer {
 
 #ecodash #chart-info {
     display: none;
-	position:absolute;
+    height:85%;
+    width:100%;
+    /* padding:2%;
+    border-radius:3px; */
+    background-color:white;
+    z-index:100;
+}
+
+#ecodash #chart-window {
+    display: none;
+	  position:absolute;
     top:10%;
     left:10%;
     height:70%;
@@ -319,7 +329,7 @@ footer {
     padding:2%;
     border-radius:3px;
     background-color:white;
-    box-shadow:0px 0px 5px gray;
+    box-shadow: 3px 3px 6px #232323;
     z-index:100;
 }
 
@@ -531,7 +541,7 @@ footer {
 /***********************************/
 
 #ecodash #ui header {
-    height:6rem;
+    height:8rem;
     margin-bottom:1rem;
     border-bottom:2px solid #666;
 }
@@ -606,8 +616,18 @@ footer {
 
 
 #ecodash #ui #polygon-clear-method {
+    /*position:absolute;*/
+    /*float:right;*/
+}
+
+#ecodash #ui #chart-clear-method {
     position:absolute;
-    float:right;
+    width: 50%;
+    height: 50%;
+    font-size: 50%
+    float: right;
+    right: 10%;
+    top: 5%;
 }
 
 /*********************************/
@@ -688,7 +708,7 @@ footer {
     font-style:italic;
 }
 
-#ecodash #ui #controls #chart {
+#ecodash #ui #controls .chart {
     height:200px;
     width:300px;
 }
@@ -875,10 +895,10 @@ input[type=range]::-ms-fill-upper {
     }
 }
 
-.container {
-    display: inline-block;
+#pagecontent .container {
+    display: block;
     cursor: pointer;
-    top: 50px;
+    top: 60px;
     right: -95%;
     position: relative;
     z-index: 10;
@@ -918,3 +938,24 @@ label{margin-left: 20px;color:#7f8c8d;}
 
 #datepicker2{width:180px; margin: 0px 20px 20px 20px;}
 #datepicker2 > span:hover{cursor: pointer;}
+
+.spinner {
+  display: none;
+  position:absolute;
+  top:30%;
+  left:45%;
+  padding:2%;
+    border: 16px solid #f3f3f3; /* Light grey */
+    border-top: 16px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    animation: spin 2s linear infinite;
+    z-index: 150;
+
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

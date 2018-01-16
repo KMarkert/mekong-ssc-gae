@@ -4,8 +4,8 @@
 
 		<title>Lower Mekong Basin Water Quality Monitor</title>
 
-	    <!-- CSS file. -->
-	    <link href="/static/css/styles.css" rel="stylesheet" type="text/css">
+	  <!-- CSS file. -->
+	  <link href="/static/css/styles.css" rel="stylesheet" type="text/css">
 
 		<!-- Google Web Fonts. -->
 		<link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
@@ -24,6 +24,10 @@
 
 		<!-- Load jquery -->
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+
+		<!-- Load Google Charts API -->
+		<script src="http://www.google.com/jsapi"></script>
+		<script src="https://www.gstatic.com/charts/loader.js"></script>
 
 		<!-- load boostrap -->
     <script src="static/js/bootstrap.min.js"></script>
@@ -68,14 +72,21 @@
 		<!-- The page content -->
 	    <section id="pagecontent">
 
+				<div class="container" onclick="toggleOptions(this)">
+					<div class="bar1"></div>
+					<div class="bar2"></div>
+					<div class="bar3"></div>
+				</div>
 
 			<!-- The DOM of the application. -->
 			<div id="ecodash">
 
-			<div id="chart-info">
-				<div id="largechart" style="display: none;"></div>
-				<div id='png'></div>
-				<a id="Export" href="#">Download as csv</a>
+			<div class="spinner"></div>
+
+			<div id='chart-window'>
+				<button id="chart-clear-method" name="chart-clear-method" class="btn btn-custom" style="background-color:#c0392b;position:absolute;font-size:10px;text-align:left;width:30px;height:30px;right:0%;top:-5px;z-index:150">X</button>
+				<div id="chart-info"></div>
+				<a id="Export" class="btn btn-custom" href="#" style="position:absolute;bottom: 10px;">Export CSV</a>
 			</div>
 
 
@@ -98,18 +109,13 @@
 					</div>
 			</div>
 
-			<div class="container" onclick="toggleOptions(this)">
-				<div class="bar1"></div>
-				<div class="bar2"></div>
-				<div class="bar3"></div>
-			</div>
-
 			<!-- The element with all sliders and buttons. -->
 			<div id="ui" style="display: none;">
 
 				<header>
 					<h3>Water Quality Monitoring Application</h3>
 				</header>
+				<br>
 
 				<div id="controls">
 
@@ -159,9 +165,11 @@
 							<a id="link" class="btn btn-custom disabled" target="_blank">Download Data</a>
 					 		<button id="chartButton" class="btn btn-custom disabled" >Show Chart</button>
 						</p>
-
-
-						<div class="chart"></div>
+						<br>
+						<br>
+						<br>
+						<br>
+						<p>    </p>
 
 			</div> <!-- end of ui display block -->
 		</div> 	<!-- end of ecodash -->

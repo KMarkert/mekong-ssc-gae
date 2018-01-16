@@ -174,13 +174,15 @@ class myProcess(object):
 
         sort = sorted(values, key=lambda x: x[0])
 
-        out = []
+        y = []
         for key, group in groupby(sort, key=lambda x: x[0][:10]):
             data = list(group)
-            agg = sum(j for i, j in data if j != None)
+            agg = sum(j for i, j in data if (j != None))
             dates = key.split('-')
             timestamp = datetime.datetime(int(dates[0]),int(dates[1]),int(dates[2]))
-            out.append([int(timestamp.strftime('%s')),agg/float(len(data))])
+            y.append([int(timestamp.strftime('%s'))*1000,agg/float(len(data))])
+
+        out = [i for i in y if i[1] > 0]
 
         return out
 
@@ -189,9 +191,8 @@ class myProcess(object):
 
         area = feature.geometry().area()
         collection = self.getTSS() #.getInfo()
-        values = collection.getRegion(feature,5000).getInfo()
-        print(values)
-        out = zip(*self.aggRegion(values))
+        values = collection.getRegion(feature,500).getInfo()
+        out = self.aggRegion(values)
 
         return out
 
@@ -286,9 +287,9 @@ class TimeHandler(webapp2.RequestHandler):
 
         try:
           result = ComputePolygonTimeSeries(polygon,coords,start,end,int(months[0]),int(months[1]))
-          content = json.dumps(result)
-        except ee.EEException as e:
-          content = json.dumps({'error': 'Unrecognized polygon ID: ' + polygon_id})
+          content = json.dumps({'timeSeries': result})
+        except: #ee.EEException as e:
+          content = json.dumps({'error': 'Request for time series too large'})
 
         self.response.headers['Content-Type'] = 'application/json'
         self.response.out.write(content)
@@ -379,7 +380,7 @@ def ComputePolygonTimeSeries(polygon,coords,startDate,endDate,startMonth,closeMo
   #       feature['properties']['tss']
   #   ]
   ts = myProcessor.makeTimeSeries(polygon)
-  print(ts)
+  print('Time series:',ts)
   return ts
 
 
