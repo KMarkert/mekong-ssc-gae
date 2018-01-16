@@ -103,17 +103,31 @@ class myProcess(object):
         return noClouds
 
     def maskLand(self,image):
-        date = ee.Date(image.get('system:time_start'))
-        blank = ee.Image(0);
-        jrc = ee.ImageCollection('JRC/GSW1_0/MonthlyHistory')
-        waterClass = ee.Image(jrc.select('water').filterDate(date.advance(-30,'day'),date.advance(30,'day')).max())
-        water = blank.where(waterClass.eq(2),1)
-        noLand = image.updateMask(water).set("system:time_start",image.get("system:time_start"))
+        def jrcMask(image):
+            date = ee.Date(image.get('system:time_start'))
+            blank = ee.Image(0);
+            jrc = ee.ImageCollection('JRC/GSW1_0/MonthlyHistory')
+            waterClass = ee.Image(jrc.select('water').filterDate(date.advance(-30,'day'),date.advance(30,'day')).max())
+            water = blank.where(waterClass.eq(2),1)
+            return water
+
+        def qaMask(image):
+            qa = self.getQABits(image.select('pixel_qa'),2,2,'qa');
+            water = qa.eq(1);
+            return water
+
+        sDate = ee.Number(ee.Date('1984-03-17').millis())
+        eDate = ee.Number(ee.Date('2015-10-17').millis())
+        imgDate = ee.Number(image.get('system:time_start'))
+        result = ee.Algorithms.If(imgDate.gt(sDate).And(imgDate.lt(eDate)),
+        jrcMask(image),
+        qaMask(image))
+        noLand = image.updateMask(result).set("system:time_start",image.get("system:time_start"))
         return noLand
 
     def bandTransform(self,image):
-        red = image.select('B3').multiply(0.0001)
-        grn = image.select('B2').multiply(0.0001)
+        red = image.select('red').multiply(0.0001)
+        grn = image.select('grn').multiply(0.0001)
         proxy = red.divide(grn).log10().set("system:time_start",image.get("system:time_start"))
         return proxy
 
@@ -136,14 +150,14 @@ class myProcess(object):
         lt4 = ee.ImageCollection('LANDSAT/LT04/C01/T1_SR')
         lt5 = ee.ImageCollection('LANDSAT/LT05/C01/T1_SR')
         le7 = ee.ImageCollection('LANDSAT/LE07/C01/T1_SR')
-        #lc8 = ee.ImageCollection('LANDSAT/LC08/C01/T1_RT_TOA').map(self.maskClouds)
+        lc8 = ee.ImageCollection('LANDSAT/LC08/C01/T1_SR')
 
-        #lt4 = lt4.select(['B1,B2,B3,B4,B5,B7'],['blu','grn','red','nir','swir1','swir2'])
-        #lt5 = lt5.select(['B1,B2,B3,B4,B5,B7'],['blu','grn','red','nir','swir1','swir2'])
-        #le7 = le7.select(['B1,B2,B3,B4,B5,B7'],['blu','grn','red','nir','swir1','swir2'])
-        #lc8 = lc8.select(['B2,B3,B4,B5,B6,B7'],['blu','grn','red','nir','swir1','swir2'])
+        lt4 = lt4.select(['B1','B2','B3','B4','B5','B7','pixel_qa'],['blu','grn','red','nir','swir1','swir2','pixel_qa'])
+        lt5 = lt5.select(['B1','B2','B3','B4','B5','B7','pixel_qa'],['blu','grn','red','nir','swir1','swir2','pixel_qa'])
+        le7 = le7.select(['B1','B2','B3','B4','B5','B7','pixel_qa'],['blu','grn','red','nir','swir1','swir2','pixel_qa'])
+        lc8 = lc8.select(['B2','B3','B4','B5','B6','B7','pixel_qa'],['blu','grn','red','nir','swir1','swir2','pixel_qa'])
 
-        fullCollection = ee.ImageCollection(lt4.merge(lt5).merge(le7))
+        fullCollection = ee.ImageCollection(lt4.merge(lt5).merge(le7).merge(lc8))
 
         start = ee.Date(self.iniDate)
         end = ee.Date(self.endDate)
