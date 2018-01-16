@@ -163,12 +163,13 @@ function plot(){
 
 	$(".loader").toggle();
 
-	myVar = setTimeout(quitPlot, 60000);
+	myVar = setTimeout(quitPlot, 65000);
 
 	$.get('/timeHandler?polygon=' + JSON.stringify(coords),data).done((function(data) {
     if (data['error']) {
        alert("Uh-oh, an error occured! This is embarrassing! Here is the problem: "+data['error']+". Please try again.");
     } else {
+			clearTimeout(myVar)
 			showChart(data['timeSeries']);
 		}
 	}))

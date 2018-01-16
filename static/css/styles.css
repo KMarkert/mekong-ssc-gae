@@ -329,7 +329,7 @@ footer {
     padding:2%;
     border-radius:3px;
     background-color:white;
-    box-shadow: 3px 3px 6px #232323;
+    box-shadow: 9px 9px 18px #232323;
     z-index:100;
 }
 
@@ -857,7 +857,7 @@ input[type=range]::-ms-fill-upper {
 
 .loader {
   display: none;
-  color: #bdc3c7;
+  color: #e67e22;
   font-size: 90px;
   text-indent: -9999em;
   overflow: hidden;
@@ -867,7 +867,7 @@ input[type=range]::-ms-fill-upper {
   margin: 72px auto;
   position: absolute;
   left:50%;
-  top:35%;
+  top:30%;
   z-index: 155;
   -webkit-transform: translateZ(0);
   -ms-transform: translateZ(0);
