@@ -36,7 +36,7 @@ MEMCACHE_EXPIRATION = 60 * 60 * 24
 
 
 # The URL fetch timeout time (seconds).
-URL_FETCH_TIMEOUT = 120
+URL_FETCH_TIMEOUT = 55
 
 WIKI_URL = ""
 
@@ -271,6 +271,8 @@ class TimeHandler(webapp2.RequestHandler):
     """A servlet to handle requests to load the main web page."""
 
     def get(self):
+
+        urlfetch.set_default_fetch_deadline(URL_FETCH_TIMEOUT)
 
         poly = json.loads(unicode(self.request.get('polygon')))
 

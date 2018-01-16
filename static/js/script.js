@@ -161,15 +161,23 @@ function plot(){
 			  months: Dates[2]
 			  }
 
-	$(".spinner").toggle();
+	$(".loader").toggle();
+
+	myVar = setTimeout(quitPlot, 60000);
 
 	$.get('/timeHandler?polygon=' + JSON.stringify(coords),data).done((function(data) {
     if (data['error']) {
-       alert("Uh-oh, an error occured! This is embarrassing! Here is the problem: "+data['error']);
+       alert("Uh-oh, an error occured! This is embarrassing! Here is the problem: "+data['error']+". Please try again.");
     } else {
 			showChart(data['timeSeries']);
 		}
 	}))
+}
+
+function quitPlot() {
+	var err = 'HTTPException: Deadline exceeded while waiting for HTTP response from URL: https://earthengine.googleapis.com/api/value'
+	alert("Uh-oh, an error occured! This is embarrassing! Here is the problem: "+err+'. Please try agin.');
+	$(".loader").toggle();
 }
 
 function polygonClearMethod(){
@@ -406,7 +414,7 @@ var ShowMap = function() {
 	params['refHigh'] = Dates[1]
 	params['months'] = Dates[2]
 
-	$(".spinner").toggle();
+	$(".loader").toggle();
 
 	$.ajax({
       url: "/details",
@@ -415,7 +423,7 @@ var ShowMap = function() {
       success: function (data) {
 		 var mapType = getEeMapType(data.eeMapId, data.eeToken);
 		 map.overlayMapTypes.push(mapType);
-		 $(".spinner").toggle();
+		 $(".loader").toggle();
 
       },
       error: function (data) {
@@ -591,7 +599,7 @@ var getCoordinates = function (shape) {
 			        this.target = '_blank';
 			    });
 
-				$(".spinner").toggle();
+				$(".loader").toggle();
 
 };
 
