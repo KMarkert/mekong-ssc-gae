@@ -174,15 +174,15 @@ class myProcess(object):
 
         sort = sorted(values, key=lambda x: x[0])
 
-        y = []
-        for key, group in groupby(sort, key=lambda x: x[0][:10]):
+        y = [i for i in sort if i[1] > 0]
+
+        out = []
+        for key, group in groupby(y, key=lambda x: x[0][:10]):
             data = list(group)
             agg = sum(j for i, j in data if (j != None))
             dates = key.split('-')
             timestamp = datetime.datetime(int(dates[0]),int(dates[1]),int(dates[2]))
-            y.append([int(timestamp.strftime('%s'))*1000,agg/float(len(data))])
-
-        out = [i for i in y if i[1] > 0]
+            out.append([int(timestamp.strftime('%s'))*1000,agg/float(len(data))])
 
         return out
 
@@ -288,8 +288,8 @@ class TimeHandler(webapp2.RequestHandler):
         try:
           result = ComputePolygonTimeSeries(polygon,coords,start,end,int(months[0]),int(months[1]))
           content = json.dumps({'timeSeries': result})
-        except: #ee.EEException as e:
-          content = json.dumps({'error': 'Request for time series too large'})
+        except ee.EEException as e:
+          content = json.dumps({'error': e})
 
         self.response.headers['Content-Type'] = 'application/json'
         self.response.out.write(content)
