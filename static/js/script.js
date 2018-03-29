@@ -50,17 +50,25 @@ var App = function(eeMapId, eeToken) {
   // create listeners for buttons and sliders
   setupListeners();
 
+	var today = new Date();
+	var end = today.getDate()+'-'+today.getMonth()+'-'+today.getFullYear();
+
+
 	$(function () {
 	  $("#datepicker").datepicker({
 	        autoclose: true,
-	        todayHighlight: true
+	        todayHighlight: true,
+					startDate:'01-01-1986',
+					endDate: end
 	  }).datepicker('update', new Date('01-01-2000'));
 	});
 
 	$(function () {
 	  $("#datepicker2").datepicker({
 	        autoclose: true,
-	        todayHighlight: true
+	        todayHighlight: true,
+					startDate:'01-01-1986',
+					endDate: end
 	  }).datepicker('update', new Date('12-31-2000'));
 	});
 
@@ -150,6 +158,11 @@ function polygonSelectionMethod(data){
 }
 
 function plot(){
+	$(".loader").toggle();
+
+	function sortComparer(firstElement, secondElement) {
+    return ((firstElement.index < secondElement.index) ? -1 : ((firstElement.index > secondElement.index) ? 1 : 0));
+	}
 
 	// document.getElementById("loader").style.display = "block"
 
@@ -160,31 +173,43 @@ function plot(){
 	var lowEnd = Number(Dates[0].split('-')[0])
 	var highEnd = Number(Dates[1].split('-')[0])
 
-	$(".loader").toggle();
+	var nIter = highEnd - lowEnd +1;
+	console.log(nIter)
+	var counter = 0;
+
+	var result
+	var ajaxResults = []
 
 	var list = [];
 	for (var i = lowEnd; i <= highEnd; i++) {
+		var data = {polygon: JSON.stringify(coords),
+									refLow : i.toString()+'-01-01',
+									refHigh : i.toString()+'-12-31',
+									months: Dates[2]
+								 }
 
-		var data = {refLow : i.toString()+'-01-01',
-								refHigh : (i+1).toString()+'-01-01',
-								months: Dates[2]
-							 }
-
-		myVar = setTimeout(quitPlot, 65000);
+		//myVar = setTimeout(quitPlot, 65000);
 
 		$.get('/timeHandler?polygon=' + JSON.stringify(coords),data).done((function(data) {
-	    if (data['error']) {
-	       alert("Uh-oh, an error occured! This is embarrassing! Here is the problem: "+data['error']+". Please try again.");
-	    } else {
-				clearTimeout(myVar)
-			}
-		}))
-		outData.push(data['timeSeries'])
-	}
+		    if (data['error']) {
+		       alert("Uh-oh, an error occured! This is embarrassing! Here is the problem: "+data['error']+". Please try again.");
+		    } else {
+					//clearTimeout(myVar)
+					counter += 1
+					//showChart(data['timeSeries']);
+					list.push(data['timeSeries'])
+					if (counter === nIter) {
+						results = [].concat.apply([], list)
+						results.sort(function(a,b){return a[0] - b[0];});
+						console.log(results)
+						showChart(results);
+					}
+				}
+			}))
+		}
 
-console.log(outData)
 
-showChart(outData);
+// console.log(data['timeSeries'])
 
 }
 
@@ -583,7 +608,7 @@ var getCoordinates = function (shape) {
 
   chartData = new google.visualization.DataTable();
   chartData.addColumn('date','Date');
-	chartData.addColumn('number','TSS');
+	chartData.addColumn('number','SSC');
 
   chartData.addRows(DataArr);
 
@@ -597,10 +622,10 @@ var getCoordinates = function (shape) {
   //       ]);
 
         chartOptions = {
-          title: 'TSS over time',
+          title: 'SSC over time',
           // curveType: 'function',
           legend: { position: 'bottom' },
-					vAxis: {title: 'TSS [mg/L]',minValue: 0},
+					vAxis: {title: 'SSC [mg/L]',minValue: 0},
 					lineWidth: 1.5,
 					pointSize: 3,
         };

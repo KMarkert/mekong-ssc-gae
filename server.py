@@ -393,7 +393,6 @@ def ComputePolygonTimeSeries(polygon,coords,startDate,endDate,startMonth,closeMo
   #       feature['properties']['tss']
   #   ]
   ts = myProcessor.makeTimeSeries(polygon)
-  print('Time series:',ts)
   return ts
 
 
