@@ -367,16 +367,8 @@ function updateButton() {
 var slider = function() {
 
 	// Without JQuery
-	var slider = new Slider('#monthSlider', {});
-
-	// Without JQuery
 	var opacSlider = new Slider('#opacitySlider', {});
 
-	// var slider1 = document.getElementById("sliderval1");
-  //   slider1.innerHTML = refStart;
-	//
-	// var slider2 = document.getElementById("sliderval2");
-  //   slider2.innerHTML = refStop;
 
 }
 
@@ -389,7 +381,22 @@ var GetDates = function() {
 	refStart = $('#datepicker').data('datepicker').getFormattedDate('yyyy-mm-dd');
 	refStop = $("#datepicker2").data('datepicker').getFormattedDate('yyyy-mm-dd');
 
-	months = $('#monthSlider').val()
+	// $("input[name='control-selection-method']:checked")
+	season = $("input[name='season-selection']:checked").val()
+	console.log(season)
+
+	if (season === 'dry'){
+		months = '11,4'
+	}
+	else if (season === 'wet'){
+		months = '5,10'
+	}
+	else if (season === 'all'){
+		months = '1,12'
+	}
+	else {
+		alert("Please select a season to processes")
+	}
 
 	return [refStart, refStop,months]
 }
@@ -623,13 +630,17 @@ else {
 function toggleOptions(x) {
     x.classList.toggle("change");
 
+		var mapDiv = document.getElementById('map');
     var options = document.getElementById("ui");
     if (options.style.display === "none") {
         options.style.display = "block";
+				mapDiv.style.width = "75%";
     } else {
         options.style.display = "none";
+				mapDiv.style.width = "100%";
     }
-		document.getElementById('map').setAttribute("class", "mapChange")
+
+		mapDiv.st
 }
 
 /**

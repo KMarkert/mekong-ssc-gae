@@ -866,7 +866,7 @@ input[type=range]::-ms-fill-upper {
   border-radius: 50%;
   margin: 72px auto;
   position: absolute;
-  left:50%;
+  left:40%;
   top:30%;
   z-index: 155;
   -webkit-transform: translateZ(0);

@@ -60,9 +60,9 @@ urlfetch.set_default_fetch_deadline(URL_FETCH_TIMEOUT)
 
 # set initial dates
 start = '2000-01-01'
-end = '2001-12-31'
-iniMonth = 1
-endMonth = 12
+end = '2000-12-31'
+iniMonth = 11
+endMonth = 4
 
 # set LMB region
 lmbRegion = ee.FeatureCollection('ft:1FOW0_lYQNG3ku2ffNyoORbzDXglPvfMyXmZRb8dj')
@@ -120,31 +120,29 @@ class myProcess(object):
         eDate = ee.Number(ee.Date('2015-10-17').millis())
         imgDate = ee.Number(image.get('system:time_start'))
         result = ee.Algorithms.If(imgDate.gt(sDate).And(imgDate.lt(eDate)),
-        jrcMask(image),
-        qaMask(image))
+                 jrcMask(image),
+                 qaMask(image)
+                 )
         noLand = image.updateMask(result).set("system:time_start",image.get("system:time_start"))
         return noLand
 
-    def bandTransform(self,image):
+    def calcTSS(self,image):
         red = image.select('red').multiply(0.0001)
         grn = image.select('grn').multiply(0.0001)
-        proxy = red.divide(grn).log10().set("system:time_start",image.get("system:time_start"))
-        return proxy
+        ratio = red.divide(grn).log10()
 
-    def calcTSS(self,image):
-
-        logTss = image.expression('a*X**4 + b*X**3 + c*X**2 + d*X + e',{
-                'X': image,
-                'a': 1.0846909,
-                'b': 6.60031595,
-                'c': 8.71108893,
-                'd': 3.55763532,
-                'e': 1.30786962
+        logTss = ratio.expression('a*X**4 + b*X**3 + c*X**2 + d*X + e',{
+                'X': ratio,
+                'a': 85.11847801,
+                'b': 14.39870524,
+                'c': 3.96970579,
+                'd': 4.54148661,
+                'e': 1.53590728
               });
 
         tss = ee.Image(10).pow(logTss).set("system:time_start",image.get("system:time_start")).rename(['tss'])
 
-        return tss.updateMask(tss.lt(250)) # mask bad quality TSS values over 250
+        return tss.updateMask(tss.lt(1200)) # mask bad quality TSS values over 1200 mg/L
 
     def makeLandsatSeries(self):
         lt4 = ee.ImageCollection('LANDSAT/LT04/C01/T1_SR')
@@ -173,8 +171,7 @@ class myProcess(object):
         collection = self.makeLandsatSeries()
         noClouds = collection.map(self.maskClouds)
         water = noClouds.map(self.maskLand)
-        proxy = water.map(self.bandTransform)
-        tss = proxy.map(self.calcTSS)
+        tss = water.map(self.calcTSS)
 
         return tss
 
@@ -205,7 +202,7 @@ class myProcess(object):
 
         area = feature.geometry().area()
         collection = self.getTSS() #.getInfo()
-        values = collection.getRegion(feature,500).getInfo()
+        values = collection.getRegion(feature,100).getInfo()
         out = self.aggRegion(values)
 
         return out
@@ -332,7 +329,7 @@ def updateMap(startDate,endDate,startMonth,closeMonth):
 
   myImg = ee.Image(mkTSS.select('tss').mean().clip(lmbRegion))
 
-  return myImg.getMapId({'min': 0, 'max': 150,
+  return myImg.getMapId({'min': 0, 'max': 500,
   'palette' : '000000,0000ff,c729d6,ffa857,ffffff'})
 
 # function to download the map
