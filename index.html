@@ -4,6 +4,11 @@
 
 		<title>Lower Mekong Basin Water Quality Monitor</title>
 
+		<!-- favicon -->
+		<link rel="icon"
+      type="image/png"
+      href="http://portal.mrcmekong.org/images/water.png">
+
 	  <!-- CSS file. -->
 	  <link href="/static/css/styles.css" rel="stylesheet" type="text/css">
 
@@ -99,8 +104,8 @@
 				<h2>Total Suspended Solids</h2>
 					<div>
 						<img class="img" src="static/img/legend.svg" alt="legend">
-						<div class="top-right">500 mg/L</div>
-						<div class="center-right">250 mg/L</div>
+						<div class="top-right">400 mg/L</div>
+						<div class="center-right">200 mg/L</div>
 						<div class="bottom-right">0 mg/L</div>
 					</div>
 					<h2 style="position:relative;bottom:-130px;zorder:10">Opacity</h2>
@@ -154,9 +159,9 @@
 
 							<label> Select season to process: </label>
 							<div class="radio">
-						  	<label><input type="radio" name="season-selection" id="season-selection" value="dry">Dry Season</label>
+						  	<label><input type="radio" name="season-selection" id="season-selection" value="dry" checked>Dry Season</label>
 							  <label><input type="radio" name="season-selection" id="season-selection" value="wet">Wet Season</label>
-							  <label><input type="radio" name="season-selection" id="season-selection" value="all" disabled>All</label>
+							  <label><input type="radio" name="season-selection" id="season-selection" value="all">All</label>
 							</div>
 
 					<button id="updateMap" class="btn btn-custom">Update map</button>

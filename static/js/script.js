@@ -65,7 +65,7 @@ var App = function(eeMapId, eeToken) {
 	});
 
   // run the slider function to initialize the dates
-  slider();
+  bootSlider();
 
  };
 
@@ -114,9 +114,8 @@ function setupListeners() {
 
   document.getElementById('updateMap').addEventListener("click", updateButton);
 
-  document.getElementById('datepicker').addEventListener("change", slider);
-  document.getElementById('datepicker2').addEventListener("change", slider);
-  // document.getElementById('opacitySlider').addEventListener("change", opacitySliders);
+  // document.getElementById('datepicker').addEventListener("change", slider);
+  // document.getElementById('datepicker2').addEventListener("change", slider);
 	$('#opacitySlider').slider().on('slideStop',opacitySliders)
 
    // kml upload function
@@ -156,23 +155,37 @@ function plot(){
 
 	var coords = getCoordinates(currentShape);
 	var Dates = GetDates();
-	var data = {refLow : Dates[0],
-			  refHigh : Dates[1],
-			  months: Dates[2]
-			  }
+	var outData = []
+
+	var lowEnd = Number(Dates[0].split('-')[0])
+	var highEnd = Number(Dates[1].split('-')[0])
 
 	$(".loader").toggle();
 
-	myVar = setTimeout(quitPlot, 65000);
+	var list = [];
+	for (var i = lowEnd; i <= highEnd; i++) {
 
-	$.get('/timeHandler?polygon=' + JSON.stringify(coords),data).done((function(data) {
-    if (data['error']) {
-       alert("Uh-oh, an error occured! This is embarrassing! Here is the problem: "+data['error']+". Please try again.");
-    } else {
-			clearTimeout(myVar)
-			showChart(data['timeSeries']);
-		}
-	}))
+		var data = {refLow : i.toString()+'-01-01',
+								refHigh : (i+1).toString()+'-01-01',
+								months: Dates[2]
+							 }
+
+		myVar = setTimeout(quitPlot, 65000);
+
+		$.get('/timeHandler?polygon=' + JSON.stringify(coords),data).done((function(data) {
+	    if (data['error']) {
+	       alert("Uh-oh, an error occured! This is embarrassing! Here is the problem: "+data['error']+". Please try again.");
+	    } else {
+				clearTimeout(myVar)
+			}
+		}))
+		outData.push(data['timeSeries'])
+	}
+
+console.log(outData)
+
+showChart(outData);
+
 }
 
 function quitPlot() {
@@ -364,12 +377,9 @@ function updateButton() {
 * function to close info screen
 * using the get started button
  */
-var slider = function() {
-
+var bootSlider = function() {
 	// Without JQuery
 	var opacSlider = new Slider('#opacitySlider', {});
-
-
 }
 
 /**
@@ -383,7 +393,6 @@ var GetDates = function() {
 
 	// $("input[name='control-selection-method']:checked")
 	season = $("input[name='season-selection']:checked").val()
-	console.log(season)
 
 	if (season === 'dry'){
 		months = '11,4'
@@ -392,6 +401,7 @@ var GetDates = function() {
 		months = '5,10'
 	}
 	else if (season === 'all'){
+		alert("Processing wet and dry seasons together can result in incosistent mosaicing of pixels from different time periods producing image artifacts")
 		months = '1,12'
 	}
 	else {

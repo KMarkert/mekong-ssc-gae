@@ -329,7 +329,7 @@ def updateMap(startDate,endDate,startMonth,closeMonth):
 
   myImg = ee.Image(mkTSS.select('tss').mean().clip(lmbRegion))
 
-  return myImg.getMapId({'min': 0, 'max': 500,
+  return myImg.getMapId({'min': 0, 'max': 400,
   'palette' : '000000,0000ff,c729d6,ffa857,ffffff'})
 
 # function to download the map
