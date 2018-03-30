@@ -212,8 +212,15 @@ footer {
 .logos img#essc {
     position:absolute;
     top:2px;
-    left:270px;
+    left:265px;
     width:70px;
+}
+
+.logos img#gsal {
+    position:absolute;
+    top:1px;
+    left:375px;
+    width:150px;
 }
 
 .logos img#sei {
