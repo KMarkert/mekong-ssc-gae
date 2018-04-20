@@ -59,26 +59,19 @@ socket.setdefaulttimeout(URL_FETCH_TIMEOUT)
 urlfetch.set_default_fetch_deadline(URL_FETCH_TIMEOUT)
 
 # set initial dates
-start = '2000-01-01'
-end = '2000-12-31'
-iniMonth = 11
-endMonth = 4
+start = '2015-08-03'
+end = '2015-08-05'
 
 # set LMB region
-lmbRegion = ee.FeatureCollection('ft:1FOW0_lYQNG3ku2ffNyoORbzDXglPvfMyXmZRb8dj')
-
+lmbRegion = ee.Geometry.Rectangle([-91.29, 14.6, -91.11,14.75])
 
 class myProcess(object):
 
-    def __init__(self,iniDate,endDate,iniMonth,endMonth):
+    def __init__(self,iniDate,endDate):
         self.iniDate = iniDate
         self.endDate = endDate
         self.region = lmbRegion
-        self.iniMonth = iniMonth
-        self.endMonth = endMonth
-        self.monthJulian = {1:[1,31],2:[32,59],3:[60,90],4:[91,120],
-                            5:[121,151],6:[152,181],7:[182,212],8:[213,243],
-                            9:[244,273],10:[274,304],11:[305,334],12:[335,365]}
+
         return
 
     def getQABits(self,image, start, end, newName):
@@ -126,23 +119,22 @@ class myProcess(object):
         noLand = image.updateMask(result).set("system:time_start",image.get("system:time_start"))
         return noLand
 
-    def calcTSS(self,image):
-        red = image.select('red').multiply(0.0001)
+    def calcChl(self,image):
+        blu = image.select('blu').multiply(0.0001)
         grn = image.select('grn').multiply(0.0001)
-        ratio = red.divide(grn).log10()
+        ratio = blu.divide(grn).log10()
 
-        logTss = ratio.expression('a*X**4 + b*X**3 + c*X**2 + d*X + e',{
+        logChl = ratio.expression('a - b*X - c*X**2 - d*X**3',{
                 'X': ratio,
-                'a': 85.11847801,
-                'b': 14.39870524,
-                'c': 3.96970579,
-                'd': 4.54148661,
-                'e': 1.53590728
+                'a': 0.0347,
+                'b': 6.7982,
+                'c': 17.957,
+                'd': 13.793,
               });
 
-        tss = ee.Image(10).pow(logTss).set("system:time_start",image.get("system:time_start")).rename(['tss'])
+        chl = ee.Image(10).pow(logChl).set("system:time_start",image.get("system:time_start")).rename(['chl_a'])
 
-        return tss.updateMask(tss.lt(1200)) # mask bad quality TSS values over 1200 mg/L
+        return chl.updateMask(chl.lt(15)) # mask bad quality TSS values over 1200 mg/L
 
     def makeLandsatSeries(self):
         lt4 = ee.ImageCollection('LANDSAT/LT04/C01/T1_SR')
@@ -159,21 +151,18 @@ class myProcess(object):
 
         start = ee.Date(self.iniDate)
         end = ee.Date(self.endDate)
-        jT1 = self.monthJulian[self.iniMonth][0]
-        jT2 = self.monthJulian[self.endMonth][1]
 
-        filteredCollection = fullCollection.filterDate(start, end).filterBounds(self.region)\
-                                .filter(ee.Filter.calendarRange(jT1,jT2))
+        filteredCollection = fullCollection.filterDate(start, end).filterBounds(self.region)
 
         return filteredCollection
 
-    def getTSS(self):
+    def getChl(self):
         collection = self.makeLandsatSeries()
         noClouds = collection.map(self.maskClouds)
         water = noClouds.map(self.maskLand)
-        tss = water.map(self.calcTSS)
+        chl = water.map(self.calcChl)
 
-        return tss
+        return chl
 
     # helper function to take multiple values of region and aggregate to one value
     def aggRegion(self,regionList):
@@ -201,7 +190,7 @@ class myProcess(object):
     def makeTimeSeries(self,feature):
 
         area = feature.geometry().area()
-        collection = self.getTSS() #.getInfo()
+        collection = self.getChl() #.getInfo()
         values = collection.getRegion(feature,100).getInfo()
         out = self.aggRegion(values)
 
@@ -215,7 +204,7 @@ class MainHandler(webapp2.RequestHandler):
     """A servlet to handle requests to load the main web page."""
 
     def get(self):
-        mapid = updateMap(start,end,iniMonth,endMonth)
+        mapid = updateMap(start,end)
         template_values = {
             'eeMapId': mapid['mapid'],
             'eeToken': mapid['token']
@@ -233,9 +222,8 @@ class DetailsHandler(webapp2.RequestHandler):
 
     start = self.request.get('refLow')
     end = self.request.get('refHigh')
-    months = self.request.get('months').split(',')
 
-    mapid = updateMap(start,end,int(months[0]),int(months[1]))
+    mapid = updateMap(start,end)
 
     template_values = {
 		'eeMapId': mapid['mapid'],
@@ -262,14 +250,13 @@ class DownloadHandler(webapp2.RequestHandler):
 
         start = self.request.get('refLow')
         end = self.request.get('refHigh')
-        months = self.request.get('months').split(',')
 
         print "========================================="
         print coords
 
         polygon = ee.FeatureCollection(ee.Geometry.Polygon(coords))
 
-        downloadURL = downloadMap(polygon,coords,start,end,int(months[0]),int(months[1]))
+        downloadURL = downloadMap(polygon,coords,start,end)
 
         print downloadURL
         content = json.dumps(downloadURL)
@@ -294,12 +281,11 @@ class TimeHandler(webapp2.RequestHandler):
 
         start = self.request.get('refLow')
         end = self.request.get('refHigh')
-        months = self.request.get('months').split(',')
 
         polygon = ee.FeatureCollection(ee.Geometry.Polygon(coords))
 
         try:
-          result = ComputePolygonTimeSeries(polygon,coords,start,end,int(months[0]),int(months[1]))
+          result = ComputePolygonTimeSeries(polygon,coords,start,end)
           content = json.dumps({'timeSeries': result})
         except ee.EEException as e:
           content = json.dumps({'error': e})
@@ -322,24 +308,25 @@ app = webapp2.WSGIApplication([
 # Helper functions
 # ------------------------------------------------------------------------------------ #
 
-def updateMap(startDate,endDate,startMonth,closeMonth):
+def updateMap(startDate,endDate):
 
-  myProcessor = myProcess(startDate,endDate,startMonth,closeMonth)
-  mkTSS = myProcessor.getTSS()
+  myProcessor = myProcess(startDate,endDate)
+  mkTSS = myProcessor.getChl()
 
-  myImg = ee.Image(mkTSS.select('tss').mean().clip(lmbRegion))
+  myImg = ee.Image(mkTSS.select('chl_a').mean().clip(lmbRegion))
 
-  return myImg.getMapId({'min': 0, 'max': 400,
-  'palette' : '000000,0000ff,c729d6,ffa857,ffffff'})
+  return myImg.getMapId({'min': -2, 'max': 10,
+  'palette' : '0000ff,0040df,0080bf,00bf9f,00ff80,008000,bcbcbc'})
+  # 'palette' : 'ffffff,409fbf,004080,002040,008000,bcbcbc'})
 
 # function to download the map
 # returns a download url
-def downloadMap(polygon,coords,startDate,endDate,startMonth,closeMonth):
+def downloadMap(polygon,coords,startDate,endDate):
 
-  myProcessor = myProcess(startDate,endDate,startMonth,closeMonth)
-  mkTSS = myProcessor.getTSS()
+  myProcessor = myProcess(startDate,endDate)
+  mkTSS = myProcessor.getChl()
 
-  myImg = ee.Image(mkTSS.select('tss').mean().clip(lmbRegion))
+  myImg = ee.Image(mkTSS.select('chl_a').mean().clip(lmbRegion))
 
   return myImg.getDownloadURL({
 		'scale': 30,
@@ -369,9 +356,9 @@ def GetPolygonTimeSeries(polygon_id):
   return json.dumps(details)
 
 
-def ComputePolygonTimeSeries(polygon,coords,startDate,endDate,startMonth,closeMonth):
+def ComputePolygonTimeSeries(polygon,coords,startDate,endDate):
   """Returns a series of brightness over time for the polygon."""
-  myProcessor = myProcess(startDate,endDate,startMonth,closeMonth)
+  myProcessor = myProcess(startDate,endDate)
   # mkTSS = myProcessor.getTSS()
   # collection = collection.select('tss').sort('system:time_start')
   # feature = GetFeature(polygon_id)

@@ -60,7 +60,7 @@ var App = function(eeMapId, eeToken) {
 	        todayHighlight: true,
 					startDate:'01-01-1986',
 					endDate: end
-	  }).datepicker('update', new Date('01-01-2000'));
+	  }).datepicker('update', new Date('08-03-2015'));
 	});
 
 	$(function () {
@@ -69,7 +69,7 @@ var App = function(eeMapId, eeToken) {
 	        todayHighlight: true,
 					startDate:'01-01-1986',
 					endDate: end
-	  }).datepicker('update', new Date('12-31-2000'));
+	  }).datepicker('update', new Date('08-05-2015'));
 	});
 
   // run the slider function to initialize the dates
@@ -91,25 +91,25 @@ var createMap = function() {
     zoom: DEFAULT_ZOOM,
 	maxZoom: MAX_ZOOM,
 	streetViewControl: false,
-	mapTypeId: 'satellite'
+	// mapTypeId: 'map'
   };
 
   var map = new google.maps.Map(document.getElementById('map'), mapOptions);
 
-	var layer = new google.maps.FusionTablesLayer({
-    query: {
-      from: '1FOW0_lYQNG3ku2ffNyoORbzDXglPvfMyXmZRb8dj'
-    },
-    styles: [{
-      polygonOptions: {
-        fillColor: '#FFFFFF',
-        fillOpacity: 0.01,
-				strokeColor: "#FFFFFF",
-    		strokeWeight: 3
-      }
-    }]
-	});
-	layer.setMap(map);
+	// var layer = new google.maps.FusionTablesLayer({
+  //   query: {
+  //     from: '1FOW0_lYQNG3ku2ffNyoORbzDXglPvfMyXmZRb8dj'
+  //   },
+  //   styles: [{
+  //     polygonOptions: {
+  //       fillColor: '#FFFFFF',
+  //       fillOpacity: 0.01,
+	// 			strokeColor: "#FFFFFF",
+  //   		strokeWeight: 3
+  //     }
+  //   }]
+	// });
+	// layer.setMap(map);
 
   return map;
 };
@@ -185,7 +185,6 @@ function plot(){
 		var data = {polygon: JSON.stringify(coords),
 									refLow : i.toString()+'-01-01',
 									refHigh : i.toString()+'-12-31',
-									months: Dates[2]
 								 }
 
 		//myVar = setTimeout(quitPlot, 65000);
@@ -416,24 +415,7 @@ var GetDates = function() {
 	refStart = $('#datepicker').data('datepicker').getFormattedDate('yyyy-mm-dd');
 	refStop = $("#datepicker2").data('datepicker').getFormattedDate('yyyy-mm-dd');
 
-	// $("input[name='control-selection-method']:checked")
-	season = $("input[name='season-selection']:checked").val()
-
-	if (season === 'dry'){
-		months = '11,4'
-	}
-	else if (season === 'wet'){
-		months = '5,10'
-	}
-	else if (season === 'all'){
-		alert("Processing wet and dry seasons together can result in incosistent mosaicing of pixels from different time periods producing image artifacts")
-		months = '1,12'
-	}
-	else {
-		alert("Please select a season to processes")
-	}
-
-	return [refStart, refStop,months]
+	return [refStart, refStop]
 }
 
 
@@ -608,7 +590,7 @@ var getCoordinates = function (shape) {
 
   chartData = new google.visualization.DataTable();
   chartData.addColumn('date','Date');
-	chartData.addColumn('number','SSC');
+	chartData.addColumn('number','Chl-a');
 
   chartData.addRows(DataArr);
 
@@ -622,10 +604,10 @@ var getCoordinates = function (shape) {
   //       ]);
 
         chartOptions = {
-          title: 'SSC over time',
+          title: 'Chl-a over time',
           // curveType: 'function',
           legend: { position: 'bottom' },
-					vAxis: {title: 'SSC [mg/L]',minValue: 0},
+					vAxis: {title: 'Chl-a [mg/L]',minValue: 0},
 					lineWidth: 1.5,
 					pointSize: 3,
         };
@@ -706,13 +688,13 @@ var getEeMapType = function(eeMapId, eeToken) {
 var EE_URL = 'https://earthengine.googleapis.com';
 
 /** @type {number} The default zoom level for the map. */
-var DEFAULT_ZOOM = 7;
+var DEFAULT_ZOOM = 12;
 
 /** @type {number} The max allowed zoom level for the map. */
 var MAX_ZOOM = 15;
 
 /** @type {Object} The default center of the map. */
-var DEFAULT_CENTER = {lng: 104.043, lat: 15.793};
+var DEFAULT_CENTER = {lng: -91.196, lat: 14.694};
 
 /** @type {string} The default date format. */
 var DATE_FORMAT = 'yyyy-mm-dd';
