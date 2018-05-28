@@ -420,10 +420,10 @@ var GetDates = function() {
 	season = $("input[name='season-selection']:checked").val()
 
 	if (season === 'dry'){
-		months = '11,4'
+		months = '12,5'
 	}
 	else if (season === 'wet'){
-		months = '5,10'
+		months = '6,11'
 	}
 	else if (season === 'all'){
 		alert("Processing wet and dry seasons together can result in incosistent mosaicing of pixels from different time periods producing image artifacts")

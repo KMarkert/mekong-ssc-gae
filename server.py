@@ -116,33 +116,38 @@ class myProcess(object):
             water = qa.eq(1);
             return water
 
+        blank = ee.Image(1)
         sDate = ee.Number(ee.Date('1984-03-17').millis())
         eDate = ee.Number(ee.Date('2015-10-17').millis())
         imgDate = ee.Number(image.get('system:time_start'))
-        result = ee.Algorithms.If(imgDate.gt(sDate).And(imgDate.lt(eDate)),
+        result = ee.Image(
+                 ee.Algorithms.If(imgDate.gt(sDate).And(imgDate.lt(eDate)),
                  jrcMask(image),
                  qaMask(image)
-                 )
+                 ))
+
+        # inverse = blank.updateMask(result.eq(0));
+        # dist = blank.cumulativeCost(inverse,25000).rename(['dist'])
+
         noLand = image.updateMask(result).set("system:time_start",image.get("system:time_start"))
         return noLand
 
     def calcTSS(self,image):
+        t = ee.Date(image.get('system:time_start'))
         red = image.select('red').multiply(0.0001)
         grn = image.select('grn').multiply(0.0001)
-        ratio = red.divide(grn).log10()
+        ratio = red.divide(grn).log()
 
-        logTss = ratio.expression('a*X**4 + b*X**3 + c*X**2 + d*X + e',{
+        logTss = ratio.expression('a*e**(b*X+c)',{
                 'X': ratio,
-                'a': 85.11847801,
-                'b': 14.39870524,
-                'c': 3.96970579,
-                'd': 4.54148661,
-                'e': 1.53590728
+                'a': 1.90353307,
+                'b': 1.44788939,
+                'c': 0.62996462,
+                'e': 2.718281828459045,
               });
+        tss = logTss.exp().set("system:time_start",t.millis()).rename(['tss'])
 
-        tss = ee.Image(10).pow(logTss).set("system:time_start",image.get("system:time_start")).rename(['tss'])
-
-        return tss.updateMask(tss.lt(1200)) # mask bad quality TSS values over 1200 mg/L
+        return tss.updateMask(tss.lt(5000)) # mask bad quality TSS values over 5000 mg/L
 
     def makeLandsatSeries(self):
         lt4 = ee.ImageCollection('LANDSAT/LT04/C01/T1_SR')
@@ -329,7 +334,7 @@ def updateMap(startDate,endDate,startMonth,closeMonth):
 
   myImg = ee.Image(mkTSS.select('tss').mean().clip(lmbRegion))
 
-  return myImg.getMapId({'min': 0, 'max': 400,
+  return myImg.getMapId({'min': 0, 'max': 800,
   'palette' : '000000,0000ff,c729d6,ffa857,ffffff'})
 
 # function to download the map
